@@ -4,6 +4,7 @@ pub mod instructions;
 
 use anchor_lang::prelude::*;
 use instructions::*;
+use state::*;
 
 declare_id!("Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS");
 
