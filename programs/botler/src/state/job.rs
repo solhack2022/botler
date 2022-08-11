@@ -2,19 +2,25 @@ use anchor_lang::prelude::*;
 
 #[account]
 #[derive(Default, Debug)]
-pub struct TimebasedJob {
+pub struct Job {
     pub authority: Pubkey,
     pub ix: InstructionData,
-    pub status:JobStatus,
+    pub status: JobStatus,
+    pub job_type: JobType,
+    pub schedule: Option<String>,
 }
 
-impl TimebasedJob {
+impl Job {
 
 }
 
 pub trait JobAction {
     fn register(
         &mut self,
+        authority: Pubkey,
+        ix: InstructionData,
+        job_type: JobType,
+        schedule: Option<String>,
     ) ->  Result<()>;
 
     fn execute(
@@ -26,19 +32,30 @@ pub trait JobAction {
     ) ->  Result<()>;
 }
 
-impl JobAction for Account<'_, TimebasedJob> {
-    fn register() -> Self {
-        Self {
-            
-        }
+impl JobAction for Account<'_, Job> {
+    fn register(&mut self, authority: Pubkey, ix: InstructionData, job_type: JobType, schedule: Option<String>) -> Result<()> {
+        self.authority = authority.key();
+        self.ix = ix;
+        self.status = JobStatus::Registered;
+        self.job_type = job_type;
+        self.schedule = schedule;
+
+        Ok(())
     }
 }
 
 #[derive(AnchorSerialize, AnchorDeserialize, Clone, PartialEq, Debug)]
 pub enum JobStatus {
+    Registered,
     Cancelled,
     Executed,
-    Queued,
+}
+
+#[derive(AnchorSerialize, AnchorDeserialize, Clone, PartialEq, Debug)]
+pub enum JobType {
+    Timebased,
+    Conditional,
+    Both,
 }
 
 #[derive(AnchorDeserialize, AnchorSerialize, BorshSchema, Clone, Debug, PartialEq)]
