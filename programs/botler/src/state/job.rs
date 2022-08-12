@@ -1,10 +1,10 @@
-use anchor_lang::prelude::*;
+use anchor_lang::{ prelude::*, solana_program::instruction::Instruction };
 
 #[account]
 #[derive(Default, Debug)]
 pub struct Job {
     pub authority: Pubkey,
-    pub ix: InstructionData,
+    pub ix: Instruction,
     pub status: JobStatus,
     pub job_type: JobType,
     pub schedule: Option<String>,
@@ -20,7 +20,7 @@ pub trait JobAction {
     fn new(
         &mut self,
         authority: Pubkey,
-        ix: InstructionData,
+        ix: Instruction,
         job_type: JobType,
         schedule: Option<String>,
     ) ->  Result<()>;
@@ -35,7 +35,7 @@ pub trait JobAction {
 }
 
 impl JobAction for Account<'_, Job> {
-    fn new(&mut self, authority: Pubkey, ix: InstructionData, job_type: JobType, schedule: Option<String>) -> Result<()> {
+    fn new(&mut self, authority: Pubkey, ix: Instruction, job_type: JobType, schedule: Option<String>) -> Result<()> {
         /* 
             TODO: add require to check if accountMetadata is valid
         */
@@ -64,24 +64,4 @@ pub enum JobType {
     Timebased,
     Conditional,
     Both,
-}
-
-#[derive(AnchorDeserialize, AnchorSerialize, BorshSchema, Clone, Debug, PartialEq)]
-pub struct InstructionData {
-    /// Pubkey of the instruction processor that executes this instruction
-    pub program_id: Pubkey,
-    /// Metadata for what accounts should be passed to the instruction processor
-    pub accounts: Vec<AccountMetaData>,
-    /// Opaque data passed to the instruction processor
-    pub data: Vec<u8>,
-}
-
-#[derive(AnchorDeserialize, AnchorSerialize, BorshSchema, Clone, Debug, PartialEq)]
-pub struct AccountMetaData {
-    /// An account's public key
-    pub pubkey: Pubkey,
-    /// True if an Instruction requires a Transaction signature matching `pubkey`.
-    pub is_signer: bool,
-    /// True if the `pubkey` can be loaded as a read-write account.
-    pub is_writable: bool,
 }

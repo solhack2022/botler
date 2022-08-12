@@ -26,7 +26,7 @@ pub struct TimebasedJobRegister<'info> {
 
 pub fn handle_timebased_job_register(
     ctx: Context<TimebasedJobRegister>,
-    ix: InstructionData,
+    ix: Instruction,
     schedule: String,
     amount: u64,
 ) -> Result<()> {
