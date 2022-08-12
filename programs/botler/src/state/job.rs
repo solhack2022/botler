@@ -11,11 +11,13 @@ pub struct Job {
 }
 
 impl Job {
-
+    /* 
+        TODO:
+    */
 }
 
 pub trait JobAction {
-    fn register(
+    fn new(
         &mut self,
         authority: Pubkey,
         ix: InstructionData,
@@ -33,7 +35,10 @@ pub trait JobAction {
 }
 
 impl JobAction for Account<'_, Job> {
-    fn register(&mut self, authority: Pubkey, ix: InstructionData, job_type: JobType, schedule: Option<String>) -> Result<()> {
+    fn new(&mut self, authority: Pubkey, ix: InstructionData, job_type: JobType, schedule: Option<String>) -> Result<()> {
+        /* 
+            TODO: add require to check if accountMetadata is valid
+        */
         self.authority = authority.key();
         self.ix = ix;
         self.status = JobStatus::Registered;
@@ -42,6 +47,9 @@ impl JobAction for Account<'_, Job> {
 
         Ok(())
     }
+    /* 
+        TODO: create fn execute, fn cancel
+    */
 }
 
 #[derive(AnchorSerialize, AnchorDeserialize, Clone, PartialEq, Debug)]
@@ -66,4 +74,14 @@ pub struct InstructionData {
     pub accounts: Vec<AccountMetaData>,
     /// Opaque data passed to the instruction processor
     pub data: Vec<u8>,
+}
+
+#[derive(AnchorDeserialize, AnchorSerialize, BorshSchema, Clone, Debug, PartialEq)]
+pub struct AccountMetaData {
+    /// An account's public key
+    pub pubkey: Pubkey,
+    /// True if an Instruction requires a Transaction signature matching `pubkey`.
+    pub is_signer: bool,
+    /// True if the `pubkey` can be loaded as a read-write account.
+    pub is_writable: bool,
 }

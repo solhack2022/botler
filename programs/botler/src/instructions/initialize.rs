@@ -13,6 +13,7 @@ pub struct InitializeBotler<'info> {
 
     #[account(
         init,
+        // TODO: add seeds
         seeds=[SEED.as_bytes(), ],
         bump,
         payer = admin,
@@ -22,12 +23,18 @@ pub struct InitializeBotler<'info> {
 
     #[account(address = system_program::ID)]
     pub system_program: Program<'info, System>,
+    /*
+        TODO: add more accounts in instruction
+    */
 }
 
-pun fn handle_initialize_botler(
+pub fn handle_initialize_botler(
     ctx: Context<InitializeBotler>,
     bump: u8,
 ) -> Result<()> {
+    /* 
+        TODO: function which handle instruction 
+    */
     
     Ok(())
 }
