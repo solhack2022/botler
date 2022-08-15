@@ -1,11 +1,11 @@
 use {
     crate::state::*,
-    anchor_lang::{prelude::*, solana_program::{system_program, system_instruction::transfer, program::invoke}},
+    anchor_lang::{prelude::*, solana_program::{system_program, system_instruction::transfer, program::invoke, instruction::Instruction}},
     std::mem::size_of
 };
 
 #[derive(Accounts)]
-#[instruction(ix:InstructionData, schedule: String, amount: u64)]
+#[instruction(ix:Instruction, schedule: u64, amount: u64)]
 pub struct TimebasedJobRegister<'info> {
     #[account()]
     pub authority: Signer<'info>,
@@ -27,7 +27,8 @@ pub struct TimebasedJobRegister<'info> {
 pub fn handle_timebased_job_register(
     ctx: Context<TimebasedJobRegister>,
     ix: Instruction,
-    schedule: String,
+    // unix_timestamp
+    schedule: u64,
     amount: u64,
 ) -> Result<()> {
     let authority = &ctx.accounts.authority;

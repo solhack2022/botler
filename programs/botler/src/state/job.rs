@@ -1,4 +1,5 @@
-use anchor_lang::{ prelude::*, solana_program::instruction::Instruction };
+use anchor_lang::{ prelude::*, solana_program::{instruction::Instruction, program::invoke_signed} };
+use crate::errors::BotlerError;
 
 #[account]
 #[derive(Default, Debug)]
@@ -7,7 +8,7 @@ pub struct Job {
     pub ix: Instruction,
     pub status: JobStatus,
     pub job_type: JobType,
-    pub schedule: Option<String>,
+    pub schedule: Option<u64>,
 }
 
 impl Job {
@@ -22,7 +23,7 @@ pub trait JobAction {
         authority: Pubkey,
         ix: Instruction,
         job_type: JobType,
-        schedule: Option<String>,
+        schedule: Option<u64>,
     ) ->  Result<()>;
 
     fn execute(
@@ -35,7 +36,7 @@ pub trait JobAction {
 }
 
 impl JobAction for Account<'_, Job> {
-    fn new(&mut self, authority: Pubkey, ix: Instruction, job_type: JobType, schedule: Option<String>) -> Result<()> {
+    fn new(&mut self, authority: Pubkey, ix: Instruction, job_type: JobType, schedule: Option<u64>) -> Result<()> {
         /* 
             TODO: add require to check if accountMetadata is valid
         */
@@ -47,8 +48,21 @@ impl JobAction for Account<'_, Job> {
 
         Ok(())
     }
+    
+    fn execute(
+            &mut self,
+        ) ->  Result<()> {
+            require!(self.status == JobStatus::Registered, BotlerError::JobNotRegistered);
+            invoke_signed(
+                instruction: &self.ix, 
+                account_infos, signers_seeds
+            )
+                .map_err(|e| BotlerError::IxExecutionFailed)?;
+            Ok(())
+    }
+
     /* 
-        TODO: create fn execute, fn cancel
+        TODO: create fn cancel
     */
 }
 
